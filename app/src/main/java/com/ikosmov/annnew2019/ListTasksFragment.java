@@ -11,84 +11,67 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class ListAlarmFragment extends Fragment {
+public class ListTasksFragment extends Fragment {
+
     RecyclerView recyclerView;
-    ListViewAdapter adapter;
-    private Task mAuthTask;
-    ArrayList<AlarmInfoNow> mas=new ArrayList<>();
+    TaskAdapter adapter;
+    List<TaskInfoNow> mas;
+    private Task2 mTask2;
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.main_list_fragment, container, false);
     }
+
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        getActivity().setTitle("Список задач");
         recyclerView=getActivity().findViewById(R.id.mainlist);
-        getActivity().setTitle("Список будильников");
-        adapter=new ListViewAdapter(getContext(),mas);
-        //mas.add(new AlarmInfoNow());
+        mas=new ArrayList<>();
+        adapter=new TaskAdapter(getContext(),mas);
+//        mas.add(new TaskInfoNow("fra","asfqre"));
         recyclerView.setAdapter(adapter);
         FloatingActionButton fab=getActivity().findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i= new Intent(getActivity(),Main2Activity.class);
+                Intent i= new Intent(getActivity(),AddTaskActivity.class);
                 getActivity().startActivity(i);
             }
         });
-        mAuthTask=new Task();
-        mAuthTask.execute((Void)null);
+        update();
     }
     public void update(){
-        adapter.notifyDataSetChanged();
-        int u=0;
+        mTask2=new Task2();
+        mTask2.execute((Void)null);
     }
-    public class Task extends AsyncTask<Void, Void, Boolean> {
-        private final ArrayList<AlarmInfoNow> mas;
-        public Task(){mas=new ArrayList<>();}
+    public class Task2 extends AsyncTask<Void, Void, Boolean> {
+        private final ArrayList<TaskInfoNow> mas;
+        public Task2(){mas=new ArrayList<>();}
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            Callback.Calls.database.execSQL("CREATE TABLE IF NOT EXISTS alarms (" +
+            Callback.Calls.database.execSQL("CREATE TABLE IF NOT EXISTS tasks (" +
                     "ID INTEGER PRIMARY KEY   AUTOINCREMENT," +
-                    "year INTEGER," +
-                    "month INTEGER," +
-                    "day INTEGER," +
-                    "hour INTEGER," +
-                    "minute INTEGER," +
-                    "ison INTEGER," +
-                    "task INTEGER," +
-                    "sound INTEGER);");
+                    "task TEXT," +
+                    "answer TEXT," +
+                    "type INTEGER);");
 //            Callback.Calls.database.execSQL("INSERT INTO user(name,age) VALUES ('pidr', 23);");
 //            Callback.Calls.database.execSQL("INSERT INTO user(name,age) VALUES ('too', 31);");
 //            SQLiteStatement s=db.compileStatement("SELECT * FROM user where id=?;");
 //            Cursor query=s.
-            Cursor query = Callback.Calls.database.rawQuery("SELECT * FROM alarms ;", new String[]{});
+            Cursor query = Callback.Calls.database.rawQuery("SELECT * FROM tasks;", new String[]{});
             if (query.moveToFirst()) {
                 do {
-
-                    int year = query.getInt(1);
-                    int month=query.getInt(2);
-                    int day=query.getInt(3);
-                    int hour=query.getInt(4);
-                    int minute=query.getInt(5);
-                    int ison=query.getInt(6);
-                    int task=query.getInt(7);
-                    int sound=query.getInt(8);
+                    String task=query.getString(1);
+                    String anwer=query.getString(2);
+                    int type=query.getInt(3);
                     int id=query.getInt(0);
-                    mas.add(new AlarmInfoNow(year,
-                            month,
-                            day,
-                            hour,
-                            minute,
-                            task,
-                            sound));
-                    if(ison==1){
-                        mas.get(mas.size()-1).isOn=true;
-                    }else if(ison==0){
-                        mas.get(mas.size()-1).isOn=false;
-                    }
+                    mas.add(new TaskInfoNow(anwer,task));
+                    mas.get(mas.size()-1).type=type;
                     mas.get(mas.size()-1).id=id;
 
                 }
@@ -100,15 +83,14 @@ public class ListAlarmFragment extends Fragment {
         }
         @Override
         protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-
+            mTask2 = null;
+            int u=0;
             if (success) {
-                adapter.alarms.clear();
-                adapter.alarms.addAll(mas);
+                adapter.tasks.clear();
+                adapter.tasks.addAll(mas);
                 adapter.notifyDataSetChanged();
             } else {
             }
         }
     }
-
 }

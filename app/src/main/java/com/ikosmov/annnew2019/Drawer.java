@@ -1,5 +1,12 @@
 package com.ikosmov.annnew2019;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,17 +21,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+
+import static android.content.Context.ALARM_SERVICE;
+
+@SuppressWarnings("ALL")
 public class Drawer extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    ListAlarmFragment listAlarmFragment;
-    TaskListFragment taskListFragment;
+    public ListAlarmFragment listAlarmFragment;
+    public ListTasksFragment taskListFragment;
+    Intent my_intent ;
+    int c=0;
+
+    final Calendar calendar = Calendar.getInstance();
+    AlarmManager alarmManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drawer);
+        Callback.Calls.database=openOrCreateDatabase("app.db", MODE_PRIVATE, null);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -40,12 +61,15 @@ public class Drawer extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
+        Callback.Calls.main=this;
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         listAlarmFragment=new ListAlarmFragment();
-        taskListFragment=new TaskListFragment();
+        taskListFragment=new ListTasksFragment();
+
         ShowFragment(1);
+
+
     }
 
     @Override
@@ -65,21 +89,75 @@ public class Drawer extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+    public void turnOn(int i){
+        PendingIntent pendingIntent;
+        AlarmInfoNow infoNow=listAlarmFragment.adapter.alarms.get(i);
+        my_intent= new Intent((Context) Drawer.this, AlarmRecevier.class);
+        my_intent.putExtra("tasktype",infoNow.typetask+"");
+        my_intent.putExtra("id",infoNow.id+"");
+        my_intent.putExtra("typesound",infoNow.typering+"");
+        if(infoNow.isOn==true){
+            turnOf(i);
         }
-
-        return super.onOptionsItemSelected(item);
+        calendar.set(Calendar.YEAR,infoNow.year);
+        calendar.set(Calendar.MONTH,infoNow.month);
+        calendar.set(Calendar.DAY_OF_MONTH,infoNow.day);
+        calendar.set(Calendar.HOUR_OF_DAY, infoNow.hour);
+        calendar.set(Calendar.MINUTE, infoNow.minute);
+        int code=i*100+c++;
+        pendingIntent = PendingIntent.getBroadcast(Drawer.this,code , my_intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        Callback.Calls.main.listAlarmFragment.mas.get(i).isOn = true;
     }
-
+    public void switchT(int t){
+        int y=0;
+        AlarmInfoNow infoNow=listAlarmFragment.adapter.alarms.get(t);
+        my_intent= new Intent((Context) Drawer.this, AlarmRecevier.class);
+        my_intent.putExtra("tasktype",infoNow.typetask+"");
+        my_intent.putExtra("typesound",infoNow.typering+"");
+        my_intent.putExtra("id",infoNow.id);
+        ContentValues values=new ContentValues();
+        values.put("year",infoNow.year);
+        values.put("month",infoNow.month);
+        values.put("day",infoNow.day);
+        values.put("hour",infoNow.hour);
+        values.put("minute",infoNow.minute);
+        values.put("task", infoNow.typetask);
+        values.put("sound",infoNow.typering);
+        if(infoNow.isOn){
+            Callback.Calls.main.turnOf(t);
+            values.put("ison",0);
+        }else {Callback.Calls.main.turnOn(t);
+            values.put("ison",1);
+        }
+        Callback.Calls.database.update("alarms",values,"ID=?",new String[]{y+""});
+        Callback.Calls.main.listAlarmFragment.mas.get(t).isOn=!Callback.Calls.main.listAlarmFragment.mas.get(t).isOn;
+    }
+    public void turnOf(int i){
+        PendingIntent pendingIntent;
+        AlarmInfoNow infoNow=listAlarmFragment.adapter.alarms.get(i);
+        if(!infoNow.isOn){
+            my_intent= new Intent((Context) Drawer.this, AlarmRecevier.class);
+            my_intent.putExtra("tasktype",infoNow.typetask+"");
+            my_intent.putExtra("typesound",infoNow.typering+"");
+            my_intent.putExtra("id",infoNow.id);
+            calendar.set(Calendar.YEAR,infoNow.year);
+            calendar.set(Calendar.MONTH,infoNow.month);
+            calendar.set(Calendar.DAY_OF_MONTH,infoNow.day);
+            calendar.set(Calendar.HOUR_OF_DAY, infoNow.hour);
+            calendar.set(Calendar.MINUTE, infoNow.minute);
+            int code=i*100+c;
+            pendingIntent = PendingIntent.getBroadcast(Drawer.this, code, my_intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            if (pendingIntent != null) {
+                alarmManager.cancel(pendingIntent);
+            }
+            Callback.Calls.main.listAlarmFragment.mas.get(i).isOn = false;
+        }
+    }
+    public void update(){
+        int y=0;
+    }
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -90,8 +168,6 @@ public class Drawer extends AppCompatActivity
             ShowFragment(1);
         } else if (id == R.id.nav_slideshow) {
             ShowFragment(2);
-        } else if (id == R.id.nav_manage) {
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -116,4 +192,6 @@ public class Drawer extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
     }
+
+
 }

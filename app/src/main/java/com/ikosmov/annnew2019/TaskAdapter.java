@@ -1,11 +1,17 @@
 package com.ikosmov.annnew2019;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -35,7 +41,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewH> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewH viewH, int i) {
+    public void onBindViewHolder(@NonNull ViewH viewH, final int i) {
+        viewH.task.setText(tasks.get(i).task);
+        viewH.answer.setText(tasks.get(i).answer);
+        viewH.general.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                showPopupMenu(view,i);
+                return false;
+            }
+        });
 
     }
 
@@ -44,12 +59,39 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewH> {
          return tasks.size();
     }
     public class ViewH extends RecyclerView.ViewHolder{
-        TextView label=null;
-        RelativeLayout general=null;
+        TextView task=null;
+        TextView answer=null;
+        LinearLayout general=null;
         public ViewH(@NonNull android.view.View itemView) {
             super(itemView);
-            label=itemView.findViewById(R.id.itemlabel);
-            general=itemView.findViewById(R.id.itemgeneral);
+            task=itemView.findViewById(R.id.itemtask);
+            answer = itemView.findViewById(R.id.itemanswer);
+            general=itemView.findViewById(R.id.general);
         }
+    }
+    private void showPopupMenu(View v,int pos) {
+        PopupMenu popupMenu = new PopupMenu(context, v, Gravity.TOP);
+        popupMenu.inflate(R.menu.popupmenu);
+        final int f=pos;
+        popupMenu
+                .setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.PopupClear:
+                                try {
+                                    Callback.Calls.database.delete("tasks","ID=?",new String[]{tasks.get(f).id+""});
+                                    tasks.remove(f);
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                                notifyDataSetChanged();
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }
+                });
+        popupMenu.show();
     }
 }
