@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import static android.content.Context.ALARM_SERVICE;
-
+//главное активити
 @SuppressWarnings("ALL")
 public class Drawer extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -42,19 +42,20 @@ public class Drawer extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drawer);
+        //база данных открывается
         Callback.Calls.database=openOrCreateDatabase("app.db", MODE_PRIVATE, null);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -78,7 +79,7 @@ public class Drawer extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+//            super.onBackPressed();
         }
     }
 
@@ -89,7 +90,7 @@ public class Drawer extends AppCompatActivity
         return true;
     }
 
-
+    //включить будильник по номерув массиве
     public void turnOn(int i){
         PendingIntent pendingIntent;
         AlarmInfoNow infoNow=listAlarmFragment.adapter.alarms.get(i);
@@ -105,11 +106,12 @@ public class Drawer extends AppCompatActivity
         calendar.set(Calendar.DAY_OF_MONTH,infoNow.day);
         calendar.set(Calendar.HOUR_OF_DAY, infoNow.hour);
         calendar.set(Calendar.MINUTE, infoNow.minute);
-        int code=i*100+c++;
+        int code=i*100+c;
         pendingIntent = PendingIntent.getBroadcast(Drawer.this,code , my_intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
         Callback.Calls.main.listAlarmFragment.mas.get(i).isOn = true;
     }
+    //переключить состояние будильника по номеру в массиве
     public void switchT(int t){
         int y=0;
         AlarmInfoNow infoNow=listAlarmFragment.adapter.alarms.get(t);
@@ -117,6 +119,7 @@ public class Drawer extends AppCompatActivity
         my_intent.putExtra("tasktype",infoNow.typetask+"");
         my_intent.putExtra("typesound",infoNow.typering+"");
         my_intent.putExtra("id",infoNow.id);
+        y=infoNow.id;
         ContentValues values=new ContentValues();
         values.put("year",infoNow.year);
         values.put("month",infoNow.month);
@@ -134,10 +137,11 @@ public class Drawer extends AppCompatActivity
         Callback.Calls.database.update("alarms",values,"ID=?",new String[]{y+""});
         Callback.Calls.main.listAlarmFragment.mas.get(t).isOn=!Callback.Calls.main.listAlarmFragment.mas.get(t).isOn;
     }
+    //выключить будильник по номеру в массиве
     public void turnOf(int i){
         PendingIntent pendingIntent;
         AlarmInfoNow infoNow=listAlarmFragment.adapter.alarms.get(i);
-        if(!infoNow.isOn){
+        if(infoNow.isOn){
             my_intent= new Intent((Context) Drawer.this, AlarmRecevier.class);
             my_intent.putExtra("tasktype",infoNow.typetask+"");
             my_intent.putExtra("typesound",infoNow.typering+"");
@@ -147,7 +151,7 @@ public class Drawer extends AppCompatActivity
             calendar.set(Calendar.DAY_OF_MONTH,infoNow.day);
             calendar.set(Calendar.HOUR_OF_DAY, infoNow.hour);
             calendar.set(Calendar.MINUTE, infoNow.minute);
-            int code=i*100+c;
+            int code=i*100+c++;
             pendingIntent = PendingIntent.getBroadcast(Drawer.this, code, my_intent, PendingIntent.FLAG_UPDATE_CURRENT);
             if (pendingIntent != null) {
                 alarmManager.cancel(pendingIntent);
@@ -174,6 +178,7 @@ public class Drawer extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+    //переключить экран(сменить фрагмент)
     public void ShowFragment(int itemId) {
         Fragment fragment = null;
         switch (itemId) {

@@ -17,7 +17,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.List;
-
+//адаптер списка задач
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewH> {
 
 
@@ -69,6 +69,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewH> {
             general=itemView.findViewById(R.id.general);
         }
     }
+    //показать всплвывающее меню
     private void showPopupMenu(View v,int pos) {
         PopupMenu popupMenu = new PopupMenu(context, v, Gravity.TOP);
         popupMenu.inflate(R.menu.popupmenu);

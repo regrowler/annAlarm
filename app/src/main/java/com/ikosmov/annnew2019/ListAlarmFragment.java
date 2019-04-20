@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-
+//фрагмент-главный экран с будильниками
 public class ListAlarmFragment extends Fragment {
     RecyclerView recyclerView;
     ListViewAdapter adapter;
@@ -24,6 +24,7 @@ public class ListAlarmFragment extends Fragment {
     }
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        //инициализация списка
         recyclerView=getActivity().findViewById(R.id.mainlist);
         getActivity().setTitle("Список будильников");
         adapter=new ListViewAdapter(getContext(),mas);
@@ -40,16 +41,20 @@ public class ListAlarmFragment extends Fragment {
         mAuthTask=new Task();
         mAuthTask.execute((Void)null);
     }
+    //обновить список будильников
     public void update(){
         adapter.notifyDataSetChanged();
         int u=0;
     }
+    //ассинхронное задание которое
+    //в отдельном потоке обновляет список
     public class Task extends AsyncTask<Void, Void, Boolean> {
         private final ArrayList<AlarmInfoNow> mas;
         public Task(){mas=new ArrayList<>();}
 
         @Override
         protected Boolean doInBackground(Void... voids) {
+            //проверка существовния таблицы
             Callback.Calls.database.execSQL("CREATE TABLE IF NOT EXISTS alarms (" +
                     "ID INTEGER PRIMARY KEY   AUTOINCREMENT," +
                     "year INTEGER," +
@@ -101,7 +106,7 @@ public class ListAlarmFragment extends Fragment {
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-
+            //обновления списка
             if (success) {
                 adapter.alarms.clear();
                 adapter.alarms.addAll(mas);

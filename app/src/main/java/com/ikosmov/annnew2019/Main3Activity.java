@@ -19,12 +19,13 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
+//активит отвечающее зза будильник
 public class Main3Activity extends AppCompatActivity {
     Button buttonTry;
     EditText editText;
     TextView textView;
     Vibrator vibrator;
+    //инициализация будильнка
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +41,7 @@ public class Main3Activity extends AppCompatActivity {
         SQLiteDatabase database = openOrCreateDatabase("app.db", MODE_PRIVATE, null);
         String ids = getIntent().getStringExtra("id");
         int id1 = Integer.parseInt(ids);
+        //отключение будильника в базе
         if (id1 >= 0) {
             ContentValues values = new ContentValues();
             values.put("ison", 0);
@@ -48,6 +50,7 @@ public class Main3Activity extends AppCompatActivity {
 
         int task = Integer.parseInt(tasktype);
         int soundt = Integer.parseInt(sound);
+        //выбор сигнала в соответствие свойствам
         if(soundt==1){
             mp.start();
         }else if(soundt==2){
@@ -61,6 +64,7 @@ public class Main3Activity extends AppCompatActivity {
             }
         }
         Cursor query;
+        //выбор заданий в соответствие со свойствами
         if (task == 1) {
             query = database.rawQuery("SELECT * FROM tasks WHERE type =?;", new String[]{"1"});
         } else if (task == 2) {
@@ -90,6 +94,7 @@ public class Main3Activity extends AppCompatActivity {
         editText = findViewById(R.id.editText);
         buttonTry = (Button) findViewById(R.id.buttonTry);
         final String an=mas.get(y).answer;
+        //кнопка принимающая ответ
         buttonTry.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -104,6 +109,7 @@ public class Main3Activity extends AppCompatActivity {
                 }
         );
         Button ch=findViewById(R.id.buttonCh);
+        //новая рандомная задача
         ch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

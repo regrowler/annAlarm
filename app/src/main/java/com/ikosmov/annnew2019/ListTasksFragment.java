@@ -15,7 +15,7 @@ import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.List;
-
+//фрагмент-экран со списком задач
 public class ListTasksFragment extends Fragment {
 
     RecyclerView recyclerView;
@@ -29,6 +29,7 @@ public class ListTasksFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getActivity().setTitle("Список задач");
+        //инициализация списка
         recyclerView=getActivity().findViewById(R.id.mainlist);
         mas=new ArrayList<>();
         adapter=new TaskAdapter(getContext(),mas);
@@ -44,16 +45,19 @@ public class ListTasksFragment extends Fragment {
         });
         update();
     }
+    //обновляет список
     public void update(){
         mTask2=new Task2();
         mTask2.execute((Void)null);
     }
+    //асинхронно задания -обновляет список
     public class Task2 extends AsyncTask<Void, Void, Boolean> {
         private final ArrayList<TaskInfoNow> mas;
         public Task2(){mas=new ArrayList<>();}
 
         @Override
         protected Boolean doInBackground(Void... voids) {
+            //проверка существования таблицы
             Callback.Calls.database.execSQL("CREATE TABLE IF NOT EXISTS tasks (" +
                     "ID INTEGER PRIMARY KEY   AUTOINCREMENT," +
                     "task TEXT," +

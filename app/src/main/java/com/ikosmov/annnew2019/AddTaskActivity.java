@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-
+//активити в котором создается задача для будильника
 public class AddTaskActivity extends AppCompatActivity {
     boolean f, s;
 
@@ -17,6 +17,7 @@ public class AddTaskActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
         Button button = findViewById(R.id.addTaskSubmit);
+        //сбор данных о задаче и запись в базу
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -41,6 +42,7 @@ public class AddTaskActivity extends AppCompatActivity {
         f = s = false;
         final CheckBox fs = findViewById(R.id.checkBox2);
         final CheckBox sec = findViewById(R.id.checkBox);
+        //это чтобы при одновременно не были выбраны два типа
         fs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

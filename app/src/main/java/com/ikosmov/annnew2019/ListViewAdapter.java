@@ -18,7 +18,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.List;
-
+//адаптер списка будильников
 public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewH> {
 
     List<AlarmInfoNow> alarms;
@@ -67,6 +67,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewH>
 
             }
         });
+        //вызов экрана просмотра свойств будильника
         viewH.general.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,7 +119,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewH>
 
         }
     }
-
+    //показать всплывающее меню
     private void showPopupMenu(View v, final int pos) {
         PopupMenu popupMenu = new PopupMenu(context, v, Gravity.TOP);
         popupMenu.inflate(R.menu.popupmenu);

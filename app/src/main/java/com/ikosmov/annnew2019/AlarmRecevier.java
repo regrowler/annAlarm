@@ -3,7 +3,7 @@ package com.ikosmov.annnew2019;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
+//получает сообщения от аларм манагера и запускает будильник
 public class AlarmRecevier extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {

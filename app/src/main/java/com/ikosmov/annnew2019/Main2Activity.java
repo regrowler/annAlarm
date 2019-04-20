@@ -24,7 +24,7 @@ import java.util.GregorianCalendar;
 
 
 //import android.widget.Toolbar;
-
+//активити создания и просмотра будильника
 public class Main2Activity extends AppCompatActivity implements View.OnClickListener {
 
     Button buttonBack1, AlarmOn, AlarmOff, buttonDel;
@@ -61,6 +61,7 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
         RadioGroup tg = findViewById(R.id.taskgroup);
         RadioGroup ts = findViewById(R.id.soundgroup);
         String ids = getIntent().getStringExtra("id");
+//        проверка существования будильника-если существеут инициализируем интерфейс
         if (ids != null) {
             String years=getIntent().getStringExtra("year");
             String months=getIntent().getStringExtra("month");
@@ -107,7 +108,9 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
                     ts.check(R.id.radioSoundAll);
                     break;
             }
-        } else id = -1;
+        } else {id = -1;tg.check(R.id.radioAll);
+        ts.check(R.id.radioSoundAll);
+        }
         textView.setText(calendar.get(Calendar.DAY_OF_MONTH) + "." + calendar.get(Calendar.MONTH) + "." + calendar.get(Calendar.YEAR));
 
         final Calendar calendar = Calendar.getInstance();
@@ -116,6 +119,7 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
         final Intent my_intent = new Intent((Context) Main2Activity.this, AlarmRecevier.class);
 
         Context context1=this;
+        //выбор даты будильника
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,14 +131,16 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
                 },calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
-        tg.check(R.id.radioAll);
-        ts.check(R.id.radioSoundAll);
+//      установка/изменение будильника
+        final int id2=id;
         AlarmOn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
                 calendar.set(Calendar.MINUTE, timePicker.getMinute());
-
+                if(id2!=-1){
+                    Callback.Calls.main.turnOf(id2);
+                }
                 RadioGroup tg = findViewById(R.id.taskgroup);
                 RadioGroup ts = findViewById(R.id.soundgroup);
                 int task = 0;
@@ -230,7 +236,8 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
 
 //
         });
-
+        //отключить будильник если он существует
+        //если нет то просто закрыть активити
         AlarmOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
